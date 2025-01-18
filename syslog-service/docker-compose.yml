@@ -1,0 +1,11 @@
+version: "3"
+services:
+  web:
+    build: .
+    volumes:
+      - .:/app
+      - C:/Users/armfa/Documents:/app/logs
+    ports:
+      - "5000:80"
+    environment:
+      - LOG_PATH=/app/logs/ShirazLog
