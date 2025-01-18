@@ -1,11 +1,9 @@
-import Loading from "../component/Loading";
+import Stack from '@mui/material/Stack';
+import CircularProgress from '@mui/material/CircularProgress';
+import Card from '../component/Card';
 
-const Test = () => {
-	return (
-		<div style={{ textAlign: "center", marginTop: "50px" }}>
-			<Loading />
-		</div>
-	);
-};
-
-export default Test;
+export default function CircularColor() {
+  return (
+    <Card title='dad' imageUrl='dad' content='Dad' chosenLogLine={'whatever'} type={0} />
+  );
+}
