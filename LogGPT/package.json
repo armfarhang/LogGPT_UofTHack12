@@ -1,0 +1,44 @@
+{
+	"name": "hack11v2",
+	"private": true,
+	"version": "0.0.0",
+	"type": "module",
+	"scripts": {
+		"dev": "vite",
+		"build": "react-scripts build",
+		"lint": "eslint .",
+		"preview": "vite preview",
+		"start": "react-scripts start"
+	},
+	"dependencies": {
+		"@auth0/auth0-react": "^2.2.4",
+		"@chatscope/chat-ui-kit-react": "^2.0.3",
+		"@emotion/react": "^11.13.5",
+		"@emotion/styled": "^11.13.5",
+		"@mui/icons-material": "^6.1.9",
+		"@mui/material": "^6.1.9",
+		"axios": "^1.7.8",
+		"framer-motion": "^11.12.0",
+		"react": "^18.3.1",
+		"react-dom": "^18.3.1",
+		"react-icons": "^5.4.0",
+		"react-router-dom": "^6.27.0",
+		"react-scripts": "^5.0.1",
+		"react-type-animation": "^3.2.0",
+		"typewriter-effect": "^2.21.0"
+	},
+	"devDependencies": {
+		"@eslint/js": "^9.13.0",
+		"@types/react": "^18.3.12",
+		"@types/react-dom": "^18.3.1",
+		"@types/react-router-dom": "^5.3.3",
+		"@vitejs/plugin-react": "^4.3.3",
+		"eslint": "^9.13.0",
+		"eslint-plugin-react-hooks": "^5.0.0",
+		"eslint-plugin-react-refresh": "^0.4.14",
+		"globals": "^15.11.0",
+		"typescript": "~5.6.2",
+		"typescript-eslint": "^8.11.0",
+		"vite": "^5.4.10"
+	}
+}

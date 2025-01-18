@@ -1,0 +1,185 @@
+/* Define color variables in the :root pseudo-class */
+:root {
+	--color-palette_1: #111111; /* Page background color */
+	--color-palette_2: #9b773d; /* Page background color */
+	--color-palette_3: #000000; /* Page background color */
+	--color-palette_4: #c49241; /* Page background color */
+
+	--color-btn_1: #1c1c1c; /* Page background color */
+}
+
+/* Constant btn styles */
+
+.BTN1 {
+	background-color: var(--color-btn_1);
+	border-radius: 15px;
+	border: solid var(--color-palette_2) 0px;
+	cursor: pointer;
+	color: #ffdca3;
+	transition: background-color 0.3s ease, color 0.3s ease, transform 0.3s ease;
+}
+
+.BTN1:hover {
+	background-color: var(--color-palette_4);
+	color: white;
+	transform: scale(1.1); /* Use a scale factor instead of fixed pixels */
+}
+
+.BTN1:active {
+	transform: scale(0.95); /* Slightly smaller to mimic a "pressed" effect */
+	transition: transform 0.05s ease; /* Quicker transition for responsiveness */
+}
+
+.BTN2 {
+	cursor: pointer;
+	transition: background-color 0.3s ease, color 0.3s ease, transform 0.3s ease;
+}
+
+.BTN2:hover {
+	background-color: var(--color-palette_4);
+	color: white;
+	transform: scale(1.1); /* Use a scale factor instead of fixed pixels */
+}
+
+.BTN2:active {
+	transform: scale(0.95); /* Slightly smaller to mimic a "pressed" effect */
+	transition: transform 0.05s ease; /* Quicker transition for responsiveness */
+}
+
+.cs-message-list {
+	background-color: rgba(255, 0, 0, 0) !important;
+}
+
+.cs-chat-container {
+	background-color: rgba(255, 0, 0, 0) !important;
+}
+
+.cs-main-container {
+	background-color: rgba(255, 0, 0, 0) !important;
+	border: none !important;
+}
+
+.cs-button--attachment {
+	display: none !important;
+}
+
+.cs-message-input {
+	padding-left: 5px !important;
+	padding-right: 5px !important;
+	border-radius: 200px;
+	background-color: rgb(33, 33, 33) !important;
+	border-top: none !important;
+	display: flex !important;
+	flex-direction: row !important;
+	justify-content: center !important;
+	align-items: center !important;
+	flex-shrink: 2 !important;
+}
+
+.cs-message-input__content-editor-wrapper {
+	border-radius: 200px !important;
+	background-color: #000000 !important;
+	align-items: center !important;
+}
+.cs-message-input__content-editor {
+	background-color: #000000 !important;
+	color: wheat !important;
+	overflow: hidden;
+	max-height: 22.84px;
+}
+
+.cs-button--send {
+	color: var(--color-palette_4) !important;
+}
+
+.cs-message-input {
+	height: 60px;
+	font-family: "Arial";
+	font-size: 18px;
+}
+
+.cs-message__content-wrapper {
+	margin-top: 20px;
+}
+
+.cs-message--incoming .cs-message__content {
+	border-radius: 20px !important;
+	border: 1px var(--color-palette_2);
+	padding: 20px;
+	background-color: rgba(12, 12, 12, 0.594) !important;
+	backdrop-filter: blur(10px);
+	color: rgb(255, 255, 255) !important;
+	padding-bottom: 20px;
+}
+
+.cs-message-list .cs-typing-indicator {
+	background-color: rgba(255, 0, 0, 0) !important;
+	color: black !important;
+}
+
+.cs-typing-indicator__text {
+	color: var(--color-palette_2) !important;
+	font-weight: 400;
+	font-family: "inter" !important;
+	font-size: 13px;
+	font-weight: 500;
+}
+
+.cs-typing-indicator__dot {
+	background-color: wheat !important;
+}
+.cs-message--outgoing .cs-message__content {
+	background-color: rgba(0, 0, 0, 0.648) !important;
+	color: wheat !important;
+	border-radius: 20px !important;
+	border: 0.5px solid rgba(71, 65, 52, 0.632);
+	padding: 20px;
+}
+
+.ps__thumb-y {
+	background-color: rgb(0, 0, 0);
+	cursor: pointer;
+}
+
+.ps__thumb-y:hover {
+	background-color: rgb(0, 0, 0) !important;
+}
+
+.ps--active-x > .ps__rail-x,
+.ps--active-y > .ps__rail-y {
+	/* background-color: red; */
+}
+
+.ps--active-x > .ps__rail-x,
+.ps--active-y > .ps__rail-y:hover {
+	background-color: rgb(230, 230, 230);
+}
+
+.cs-message--incoming {
+	background-color: rgba(255, 0, 0, 0);
+	border-bottom: solid rgba(0, 0, 0, 0.062) 1px;
+	padding-bottom: 20px;
+}
+
+.ps__rail-y:hover > .ps__thumb-y {
+	background-color: rgba(0, 0, 0, 0.665);
+}
+
+.ps__rail-y:hover > .ps__thumb-y,
+.ps__rail-y:focus > .ps__thumb-y,
+.ps__rail-y.ps--clicking .ps__thumb-y {
+	background-color: rgba(0, 0, 0, 0.665);
+}
+
+.ps .ps__rail-x:hover,
+.ps .ps__rail-y:hover,
+.ps .ps__rail-x:focus,
+.ps .ps__rail-y:focus,
+.ps .ps__rail-x.ps--clicking,
+.ps .ps__rail-y.ps--clicking {
+	background-color: rgba(245, 222, 179, 0) !important;
+}
+
+.ps__thumb-y {
+	background-color: rgb(160, 145, 117) !important;
+}

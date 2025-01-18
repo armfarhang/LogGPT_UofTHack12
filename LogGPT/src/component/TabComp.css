@@ -1,0 +1,52 @@
+.tab {
+	width: 100%;
+	max-width: 200px;
+	height: 40px;
+	background-color: #1c1c1c;
+	border-top-right-radius: 10px;
+	border-top-left-radius: 10px;
+	margin-left: 2px;
+	border-left: solid #574f3f 0.5px;
+	display: flex;
+	align-items: center;
+	flex-direction: row;
+	cursor: pointer;
+}
+
+.tab:hover {
+	background-color: #272727;
+}
+
+.tab:active {
+	transform: scale(0.95); /* Slightly smaller to mimic a "pressed" effect */
+	transition: transform 0.05s ease; /* Quicker transition for responsiveness */
+}
+
+.tabName {
+	flex: 1 1;
+	display: flex;
+	align-items: center;
+	box-sizing: border-box;
+	padding-left: 5px;
+	font-family: "inter";
+	font-size: 14px;
+	color: wheat;
+}
+
+.exitTabBtn {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	width: 30px;
+	height: 30px;
+	border-radius: 20px;
+	margin-right: 5px;
+	cursor: pointer;
+	background: transparent;
+	border: 0px;
+	color: wheat;
+}
+
+.exitTabBtn:hover {
+	background-color: #38342c;
+}
