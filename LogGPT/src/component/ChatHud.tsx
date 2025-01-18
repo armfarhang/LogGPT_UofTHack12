@@ -9,161 +9,199 @@ import TabComp from "./TabComp";
 
 import "@chatscope/chat-ui-kit-styles/dist/default/styles.min.css";
 import {
-	MainContainer,
-	ChatContainer,
-	MessageList,
-	Message,
-	MessageInput,
-	TypingIndicator,
-	MessageModel,
+  MainContainer,
+  ChatContainer,
+  MessageList,
+  Message,
+  MessageInput,
+  TypingIndicator,
+  MessageModel,
 } from "@chatscope/chat-ui-kit-react";
-import { useEffect, useState } from "react";
+import {useState } from "react";
 
 interface ChatHudProps {
-	story: string; // Receive story from parent
+  story: string; // Receive story from parent
+}
+
+interface TabData {
+  id: number;
+  messages: MessageModel[];
+  typing: boolean;
 }
 
 const ChatHud: React.FC<ChatHudProps> = ({ story }) => {
-	const [tabs, setTabs] = useState<number[]>([]); // State to keep track of tab IDs
+  const [tabs, setTabs] = useState<TabData[]>([{ id: 1, messages: [], typing: false }]); // Ensure at least one tab
+  const [selectedTab, setSelectedTab] = useState<number>(1); // Select the first tab by default
+  const [chatGptTyping, setChatGptTyping] = useState(false);
+  const [chatGptAiMessageList, setChatGptAiMessageList] = useState<MessageModel[]>([]);
 
-	const addTab = () => {
-		setTabs((prevTabs) => [...prevTabs, prevTabs.length + 1]); // Add a new tab
-	};
+  const addTab = () => {
+    const newTabId = tabs.length ? Math.max(...tabs.map((tab) => tab.id)) + 1 : 1;
+    setTabs([...tabs, { id: newTabId, messages: [], typing: false }]);
+    setSelectedTab(newTabId); // Select the new tab
+    setChatGptAiMessageList([]); // Clear the message list for the new tab
+  };
 
-	const [chatGptTyping, setChatGptTyping] = useState(false);
-	const [chatGptAiMessageList, setChatGptAiMessageList] = useState<
-		MessageModel[]
-	>([]);
+  const deleteTab = (tabId: number) => {
+    if (tabs.length === 1) return; // Prevent deleting the last tab
+    console.log("Deleting tab with tabId:", tabId);
+    setTabs((prevTabs) => prevTabs.filter((tab) => tab.id !== tabId));
+    if (selectedTab === tabId) {
+      const newSelectedTab = tabs.find((tab) => tab.id !== tabId)?.id || 1;
+      setSelectedTab(newSelectedTab); // Select another tab
+      const selectedTabData = tabs.find((tab) => tab.id === newSelectedTab);
+      if (selectedTabData) {
+        setChatGptAiMessageList(selectedTabData.messages); // Load the messages for the selected tab
+        setChatGptTyping(selectedTabData.typing); // Set the typing indicator for the selected tab
+      }
+    }
+  };
 
-	const handleSendMesageToGPT = async (message: string) => {
-		// Create a new user message object
-		const newMessage: MessageModel = {
-			message: message,
-			sender: "user",
-			direction: "outgoing", // Example value, adjust as needed
-			position: "single", // Example value, adjust as needed
-		};
+  const selectTab = (tabId: number) => {
+    setSelectedTab(tabId);
+    const selectedTabData = tabs.find((tab) => tab.id === tabId);
+    if (selectedTabData) {
+      setChatGptAiMessageList(selectedTabData.messages); // Load the messages for the selected tab
+      setChatGptTyping(selectedTabData.typing); // Set the typing indicator for the selected tab
+    }
+  };
 
-		// Add the user's message to the message list
-		const newMessages = [...chatGptAiMessageList, newMessage];
-		setChatGptAiMessageList(newMessages);
+  const handleSendMesageToGPT = async (message: string) => {
+    if (selectedTab === null) return;
 
-		// Set typing indicator
-		setChatGptTyping(true);
+    const newMessage: MessageModel = {
+      message: message,
+      sender: "user",
+      direction: "outgoing",
+      position: "single",
+    };
 
-		// Send the message to ChatGPT and get the response
-		const response = await getChatGPTResponse(message, story);
+    const newMessages = [...chatGptAiMessageList, newMessage];
+    setChatGptAiMessageList(newMessages);
+    setChatGptTyping(true);
 
-		// Create a new message object for the assistant's response
-		const responseMessage: MessageModel = {
-			message: response,
-			sender: "assistant",
-			direction: "incoming", // Example value, adjust as needed
-			position: "single", // Example value, adjust as needed
-		};
+    setTabs((prevTabs) =>
+      prevTabs.map((tab) =>
+        tab.id === selectedTab
+          ? { ...tab, messages: newMessages, typing: true }
+          : tab
+      )
+    );
 
-		// Add the assistant's response to the message list
-		const updatedMessages = [...newMessages, responseMessage];
-		setChatGptAiMessageList(updatedMessages);
+    const response = await getChatGPTResponse(message, story);
 
-		// Remove typing indicator
-		setChatGptTyping(false);
-	};
+    const responseMessage: MessageModel = {
+      message: response,
+      sender: "assistant",
+      direction: "incoming",
+      position: "single",
+    };
 
-	useEffect(() => {
-		setChatGptTyping(true);
-	}, []);
+    const updatedMessages = [...newMessages, responseMessage];
+    setChatGptAiMessageList(updatedMessages);
+    setChatGptTyping(false);
 
-	return (
-		<div className="chat_hud_main">
-			<div className="glowing-oval"></div>
-			<div className="chat_hud_main_top_header">
-				<div
-					style={{
-						display: "flex",
-						flexDirection: "row",
-						alignItems: "center",
-						gap: "10px",
-						width: "100%",
-						marginTop: "00px",
-					}}
-				>
-					<img className="log_gpt_log" src={logo} alt="" />
-					<div
-						style={{ fontFamily: "inter", fontSize: "30px", color: "white" }}
-					>
-						LogGPT
-					</div>
+    setTabs((prevTabs) =>
+      prevTabs.map((tab) =>
+        tab.id === selectedTab
+          ? { ...tab, messages: updatedMessages, typing: false }
+          : tab
+      )
+    );
+  };
 
-					<div className="tabDiv">
-						<div className="tabUnderline"></div>
-						{tabs.map((tabId) => (
-							<TabComp key={tabId} />
-						))}
-						<button className="addTab BTN1" onClick={addTab}>
-							<IoAddOutline size={20} />
-						</button>
-					</div>
+  return (
+    <div className="chat_hud_main">
+      <div className="glowing-oval"></div>
+      <div className="chat_hud_main_top_header">
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "row",
+            alignItems: "center",
+            gap: "10px",
+            width: "100%",
+            marginTop: "00px",
+          }}
+        >
+          <img className="log_gpt_log" src={logo} alt="" />
+          <div
+            style={{ fontFamily: "inter", fontSize: "30px", color: "white" }}
+          >
+            LogGPT
+          </div>
 
-					{/* <div className="startNewConvoDiv">
-            <div className="startNewConvo BTN2">
-              <div style={{fontSize:"20px", marginRight:"5px"}}>+</div>
-              <div>Conversation</div>
-            </div>
-          </div> */}
-					<div className="profileIcon BTN1">
-						<Person2Icon />
-					</div>
-				</div>
-			</div>
-			<motion.div
-				className="introduction_chat"
-				initial={{ opacity: 1 }} // Start fully visible
-				animate={{ opacity: chatGptAiMessageList.length === 0 ? 1 : 0 }} // Fade out when condition is false
-				transition={{ duration: 0.5 }} // Duration of the fade effect
-			>
-				<div className="intoruction_chat">
-					<Typewriter
-						onInit={(typewriter) => {
-							typewriter
-								.typeString("What can I help you with?")
-								.callFunction(() => {
-									console.log("String typed out!");
-								})
-								.pauseFor(500) // Shorter pause for quicker transition
-								.callFunction(() => {
-									console.log("All strings were deleted");
-								})
-								.start();
-						}}
-						options={{
-							delay: 25, // Reduce delay between typing characters (lower value = faster)
-						}}
-					/>
-				</div>
-			</motion.div>
-			<div className="gptContinaer">
-				<MainContainer className="chat-main-container">
-					<ChatContainer>
-						<MessageList
-							typingIndicator={
-								chatGptTyping ? <TypingIndicator content="Logging" /> : null
-							}
-						>
-							{chatGptAiMessageList.map((message, index) => (
-								<Message key={index} model={message} />
-							))}
-						</MessageList>
-						<MessageInput
-							placeholder="Type message here"
-							onSend={handleSendMesageToGPT}
-						/>
-					</ChatContainer>
-				</MainContainer>
-			</div>
-			;
-		</div>
-	);
+          <div className="tabDiv">
+            <div className="tabUnderline"></div>
+            {tabs.map((tab) => {
+              console.log("Rendering TabComp with tabId:", tab.id);
+              return (
+                <TabComp
+                  key={tab.id}
+                  tabId={tab.id}
+                  onDelete={() => deleteTab(tab.id)}
+                  onSelect={() => selectTab(tab.id)}
+                  isSelected={selectedTab === tab.id}
+                />
+              );
+            })}
+            <button className="addTab BTN1" onClick={addTab}>
+              <IoAddOutline size={20} />
+            </button>
+          </div>
+
+          <div className="profileIcon BTN1">
+            <Person2Icon />
+          </div>
+        </div>
+      </div>
+      <motion.div
+        className="introduction_chat"
+        initial={{ opacity: 1 }} // Start fully visible
+        animate={{ opacity: chatGptAiMessageList.length === 0 ? 1 : 0 }} // Fade out when condition is false
+        transition={{ duration: 0.5 }} // Duration of the fade effect
+      >
+        <div className="intoruction_chat">
+          <Typewriter
+            onInit={(typewriter) => {
+              typewriter
+                .typeString("What can I help you with?")
+                .callFunction(() => {
+                  console.log("String typed out!");
+                })
+                .pauseFor(500) // Shorter pause for quicker transition
+                .callFunction(() => {
+                  console.log("All strings were deleted");
+                })
+                .start();
+            }}
+            options={{
+              delay: 25, // Reduce delay between typing characters (lower value = faster)
+            }}
+          />
+        </div>
+      </motion.div>
+      <div className="gptContinaer">
+        <MainContainer className="chat-main-container">
+          <ChatContainer>
+            <MessageList
+              typingIndicator={
+                chatGptTyping ? <TypingIndicator content="Logging" /> : null
+              }
+            >
+              {chatGptAiMessageList.map((message, index) => (
+                <Message key={index} model={message} />
+              ))}
+            </MessageList>
+            <MessageInput
+              placeholder="Type message here"
+              onSend={handleSendMesageToGPT}
+            />
+          </ChatContainer>
+        </MainContainer>
+      </div>
+    </div>
+  );
 };
 
 export default ChatHud;
