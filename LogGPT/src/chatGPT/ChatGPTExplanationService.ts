@@ -39,10 +39,9 @@ const trimContext = (context: ConversationContext, maxTokens: number): Conversat
     return trimmedContext;
 };
 
-// Function to get a response from the OpenAI API
-export const getChatGPTResponse = async (
-    message: string,
-    logs: string, // Server logs as the context
+// Function to get an explanation from the OpenAI API
+export const getChatGPTExplanation = async (
+    logLine: string,
     conversationContext: ConversationContext = [],
     maxTokens: number = 4096 // Adjust based on your model's token limit
 ): Promise<string> => {
@@ -51,17 +50,15 @@ export const getChatGPTResponse = async (
         conversationContext.push({
             role: 'system',
             content: `
-                You are a server logs expert. Only answer questions about server logs and related topics. 
-                Respond to all questions based on the following server logs:
-                ${logs}... (truncated for length).
-                Provide responses in concise bullet points. 
-                If the question is off-topic, remind the user to ask about server logs.
+                You are a server logs expert. Analyze the following log line and provide a short context of what is wrong with it:
+                ${logLine}
+                Provide the explanation in concise bullet points.
             `,
         });
     }
 
-    // Add the user's message to the context
-    conversationContext.push({ role: 'user', content: message });
+    // Add the log line to the context
+    conversationContext.push({ role: 'user', content: logLine });
 
     // Trim the context to fit within the token limit
     const trimmedContext = trimContext(conversationContext, maxTokens);
@@ -71,7 +68,8 @@ export const getChatGPTResponse = async (
         const response = await axios.post<OpenAIResponse>(
             API_URL,
             {
-                model: 'gpt-3.5-turbo', // Specify the model to use                
+                model: 'gpt-4', // Specify the model to use
+                messages: trimmedContext,
                 max_tokens: 200, // Adjust to control response length
                 temperature: 0.7, // Adjust to control randomness
             },
@@ -90,9 +88,9 @@ export const getChatGPTResponse = async (
         conversationContext.push({ role: 'assistant', content: assistantMessage });
 
         // Return the response
-        return assistantMessage;
+        return assistantMessage; 
     } catch (error) {
-        console.error('Error fetching ChatGPT response:', error);
-        return 'Error: Unable to fetch response.';
+        console.error('Error fetching ChatGPT explanation:', error);
+        return 'Error: Unable to fetch explanation.';
     }
 };

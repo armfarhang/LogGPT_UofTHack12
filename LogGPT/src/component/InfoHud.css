@@ -142,7 +142,35 @@
     justify-content: center;
     margin-right: 10px;
 
+  }
 
+  .difModeContainer .BTN2.selected {
+    background-color: rgb(189, 140, 50);
+    color: white;
+  }
+
+  .liveContent, .notifiContent {
+    margin-top: 10px;
+    padding: 10px;
+    background-color: #333;
+    border-radius: 8px;
+    color: white;
+  }
+  
+  .liveContent {
+    display: none;
+  }
+  
+  .notifiContent {
+    display: none;
+  }
+  
+  .difModeContainer .liveBtn.selected ~ .liveContent {
+    display: block;
+  }
+  
+  .difModeContainer .notifiBtn.selected ~ .notifiContent {
+    display: block;
   }
 
   .liveBtn{

@@ -4,6 +4,7 @@ import Card from '../component/Card';
 
 export default function CircularColor() {
   return (
-    <Card title='dad' imageUrl='dad' content='Dad' chosenLogLine={'whatever'} type={0} />
+    // <Card title='dad' imageUrl='dad' content='Dad' chosenLogLine={'whatever'} type={0} />
+    <div></div>
   );
 }

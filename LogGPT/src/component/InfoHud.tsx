@@ -1,5 +1,5 @@
 import "./InfoHud.css";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import UploadFileIcon from "@mui/icons-material/UploadFile";
 import { motion } from "framer-motion";
 import NotificationsIcon from "@mui/icons-material/Notifications";
@@ -11,6 +11,7 @@ import Stack from '@mui/material/Stack';
 import CircularProgress from '@mui/material/CircularProgress';
 import { IoIosArrowDown, IoIosArrowUp } from "react-icons/io";
 import { IoIosSettings } from "react-icons/io";
+import Card from "./Card";
 
 
 interface InfoHudProps {
@@ -19,7 +20,6 @@ interface InfoHudProps {
 }
 
 const InfoHud: React.FC<InfoHudProps> = ({ setStory }) => {
-  const [numLines, setNumLines] = useState<number>(5); // Default to last 5 lines
   const [fileContent, setFileContent] = useState<string>("");
   const [isOpen, setIsOpen] = useState(false); // To control dropdown visibility
   const [loading, setLoading] = useState<boolean>(true);
@@ -27,6 +27,11 @@ const InfoHud: React.FC<InfoHudProps> = ({ setStory }) => {
   const [fetchingMessage, setFetchingMessage] = useState<boolean>(false);
   const [fontSize, setFontSize] = useState<number>(14); // Initial font size
   const [showFirstButton, setShowFirstButton] = useState(true);
+  const [selectedMode, setSelectedMode] = useState<string>('live');
+
+  const handleModeChange = (mode: string) => {
+    setSelectedMode(mode);
+  };
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -67,7 +72,7 @@ const InfoHud: React.FC<InfoHudProps> = ({ setStory }) => {
 
   const getFilteredContent = () => {
     const lines = fileContent.split("\n");
-    return lines.slice(-numLines).map((line, index) => {
+    return lines.slice(-100).map((line, index) => {
       let highlightedLine = line;
       const keywords = [
         { word: 'shiraz', color: 'red' },
@@ -87,6 +92,11 @@ const InfoHud: React.FC<InfoHudProps> = ({ setStory }) => {
     }).join("");
   };
 
+  const getRawContent = () => {
+    const lines = fileContent.split("\n");
+    return lines.slice(-100).join("\n");
+  };
+
   const increaseFontSize = () => setFontSize(prevSize => Math.min(prevSize + 2, 30));
   const decreaseFontSize = () => setFontSize(prevSize => Math.max(prevSize - 2, 10));
 
@@ -101,24 +111,89 @@ const InfoHud: React.FC<InfoHudProps> = ({ setStory }) => {
     }
   };
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setFetchingMessage(true);
-        await new Promise(resolve => setTimeout(resolve, 2000)); // 2 seconds delay for fetching message
-        const response = await axios.get('/api/message'); // Use the proxied URL
-        setFileContent(prevContent => {
-          const newContent = response.data.message;
-          return prevContent + "\n" + newContent;
-        });
-      } catch (err) {
-        setError('Error fetching data');
-      } finally {
-        setFetchingMessage(false);
-        setLoading(false);
-      }
+  const parseLogs = (logs: string) => {
+    const lines = logs.split("\n").slice(-100); // Only parse the last 100 lines
+    const groupedLogs: { error: string[], warning: string[], login: string[] } = {
+      error: [],
+      warning: [],
+      login: []
     };
+  
+    lines.forEach(line => {
+      if (/error/i.test(line)) {
+        groupedLogs.error.push(line);
+      } else if (/warning/i.test(line)) {
+        groupedLogs.warning.push(line);
+      } else if (/login/i.test(line)) {
+        groupedLogs.login.push(line);
+      }
+    });
+  
+    const cards = [];
+    if (groupedLogs.error.length > 0) {
+      cards.push(
+        <Card
+          key="error"
+          title="Error"
+          imageUrl=""
+          content={groupedLogs.error}
+          chosenLogLine="Error Logs"
+          type={1}
+        />
+      );
+    }
+    if (groupedLogs.warning.length > 0) {
+      cards.push(
+        <Card
+          key="warning"
+          title="Warning"
+          imageUrl=""
+          content={groupedLogs.warning}
+          chosenLogLine="Warning Logs"
+          type={2}
+        />
+      );
+    }
+    if (groupedLogs.login.length > 0) {
+      cards.push(
+        <Card
+          key="login"
+          title="Login"
+          imageUrl=""
+          content={groupedLogs.login}
+          chosenLogLine="Login Logs"
+          type={3}
+        />
+      );
+    }
+  
+    return cards.slice(0, 25); // Limit to 25 cards
+  };
+  
 
+  const parsedCards = useMemo(() => parseLogs(fileContent), [fileContent]);
+
+  const fetchData = async () => {
+    try {
+      setFetchingMessage(true);
+      await new Promise(resolve => setTimeout(resolve, 2000)); // 2 seconds delay for fetching message
+      const response = await axios.get('/api/message'); // Use the proxied URL
+      const newContent = response.data.message;
+      setFileContent(prevContent => {
+        if (prevContent.includes(newContent)) {
+          return prevContent; // No change if new content is already included
+        }
+        return prevContent + "\n" + newContent;
+      });
+    } catch (err) {
+      setError('Error fetching data');
+    } finally {
+      setFetchingMessage(false);
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchData();
     const intervalId = setInterval(fetchData, 5000); // Fetch every 5 seconds
 
@@ -127,9 +202,9 @@ const InfoHud: React.FC<InfoHudProps> = ({ setStory }) => {
 
   useEffect(() => {
     if (fileContent) {
-      setStory(getFilteredContent());
+      setStory(getRawContent());
     }
-  }, [fileContent, numLines]); // Update when fileContent or numLines changes
+  }, [fileContent]); // Update when fileContent changes
 
   return (
     <motion.div
@@ -178,11 +253,17 @@ const InfoHud: React.FC<InfoHudProps> = ({ setStory }) => {
             </div>
 
             <div className="difModeContainer">
-              <div className="liveBtn BTN2">
+              <div
+                className={`liveBtn BTN2 ${selectedMode === 'live' ? 'selected' : ''}`}
+                onClick={() => handleModeChange('live')}
+              >
                 <LogoDevIcon />
                 <div>Live</div>
               </div>
-              <div className="notifiBtn BTN2">
+              <div
+                className={`notifiBtn BTN2 ${selectedMode === 'notifi' ? 'selected' : ''}`}
+                onClick={() => handleModeChange('notifi')}
+              >
                 <NotificationsIcon />
                 <div>Notifi</div>
               </div>
@@ -201,38 +282,10 @@ const InfoHud: React.FC<InfoHudProps> = ({ setStory }) => {
           <div className="line-controls ">
             <button
               onClick={() => {
-                setNumLines(5);
-                setIsOpen(!isOpen);
-              }}
-            >
-              Last 5 Lines
-            </button>
-            <button
-              onClick={() => {
-                setNumLines(50);
-                setIsOpen(!isOpen);
-              }}
-            >
-              Last 50 Lines
-            </button>
-            <button
-              onClick={() => {
-                setNumLines(100);
                 setIsOpen(!isOpen);
               }}
             >
               Last 100 Lines
-            </button>
-            <button
-              onClick={() => {
-                setNumLines(300);
-                setIsOpen(!isOpen);
-              }}
-            >
-              Last 300 Lines
-            </button>
-            <button onClick={() => setNumLines(fileContent.split("\n").length)}>
-              Show All
             </button>
           </div>
         )}
@@ -269,12 +322,22 @@ const InfoHud: React.FC<InfoHudProps> = ({ setStory }) => {
         )}
       </div>
       {error && <div>{error}</div>}
+      {selectedMode === 'live' && (
+        <div className="log_viewer" style={{ fontSize: `${fontSize}px` }}>
+          {!loading && (
+            <pre dangerouslySetInnerHTML={{ __html: getFilteredContent() }} />
+          )}
+        </div>
+      )}
+
+      {selectedMode === 'notifi' && (
+         <div className="log_viewer" style={{ fontSize: `${fontSize}px` }}>
+          {parsedCards}
+        </div>
+      )}
       <div className="upload_log"></div>
-      <div className="log_viewer" style={{ fontSize: `${fontSize}px` }}>
-        {!loading && (
-          <pre dangerouslySetInnerHTML={{ __html: getFilteredContent() }} />
-        )}
-      </div>
+      
+  
     </motion.div>
   );
 };
