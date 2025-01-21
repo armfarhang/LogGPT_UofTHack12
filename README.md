@@ -37,3 +37,6 @@ Big Picture:
 LogGPT has the potential to expand beyond server management, offering a valuable perspective in other domains as well. It can be integrated into banking systems to help sysadmins or users detect malicious activities on their accounts, offering a wide perspective on account health and security. The tool could also be used in any Dockerized application that generates logs, helping users maintain a comprehensive perspective on application performance and security.
 
 We are redefining how we view system logs and errors, LogGPT aims to change how we manage servers. Its potential to simplify complex data and present it in an accessible, actionable format creates a new perspective on server management that benefits both seasoned sysadmins and amateur users alike.
+
+Click The Image Below To Watch The Demo!
+[![Watch The Demo!](https://github.com/armfarhang/LogGPT_UofTHack12/blob/main/Logo-w-background.jpg?raw=true)](https://youtu.be/hO8pwMp4fV8)
